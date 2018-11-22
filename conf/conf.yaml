@@ -1,0 +1,11 @@
+# 数据库配置
+db_user: root
+db_password: root
+db_name: file_pool
+db_prefix: f_
+# redis配置
+
+# 服务地址
+service_address: 127.0.0.1:6000
+# 日志控制
+local_log: 1
