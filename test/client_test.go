@@ -26,12 +26,14 @@ func TestClient(t *testing.T) {
 	xclient := client.NewXClient("FilePoolService", client.Failtry, client.RandomSelect, d, client.DefaultOption)
 	defer xclient.Close()
 
-	args := map[string]interface{}{
-		"UserId": 1,
-	}
-
 	reply := &Reply{}
-	err := xclient.Call(context.Background(), "GetUserInfo", args, reply)
+	//err := xclient.Call(context.Background(), "GetUserInfo", map[string]interface{}{"UserId": 1}, reply)
+	//err := xclient.Call(context.Background(), "GetUserPoolList", map[string]interface{}{"UserId": 1}, reply)
+	//err := xclient.Call(context.Background(), "GetUserRecyclePoolList", map[string]interface{}{"UserId": 1}, reply)
+	//err := xclient.Call(context.Background(), "DeleteUserPoolById", map[string]interface{}{"PoolUserId": 2}, reply)
+	//err := xclient.Call(context.Background(), "RestoreUserPoolById", map[string]interface{}{"PoolUserId": 2}, reply)
+	//err := xclient.Call(context.Background(), "GetPoolInfoByPoolUserId", map[string]interface{}{"PoolUserId": 2}, reply)
+	err := xclient.Call(context.Background(), "GetFileListByPoolId", map[string]interface{}{"PoolId": 1}, reply)
 	if err != nil {
 		log.Fatalf("failed to call: %v", err)
 	}

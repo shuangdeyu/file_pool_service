@@ -3,6 +3,7 @@ package service
 const (
 	Success              = 100000
 	ERROR_USER_NOT_EXITS = 100001 // 用户不存在
+	POOL_NOT_EXITS       = 100002 // 文档池不存在
 )
 
 type Out struct {
@@ -25,6 +26,8 @@ func ToString(errorCode interface{}) string {
 	case int:
 		if code == ERROR_USER_NOT_EXITS {
 			return "用户不存在"
+		} else if code == POOL_NOT_EXITS {
+			return "文档池不存在"
 		}
 	}
 	return ""
