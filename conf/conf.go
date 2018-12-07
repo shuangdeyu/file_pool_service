@@ -3,16 +3,21 @@ package conf
 import (
 	"github.com/go-yaml/yaml"
 	"io/ioutil"
+	"time"
 )
 
 // 配置项
 type Configuration struct {
-	DbUser         string `yaml:"db_user"`
-	DbPassword     string `yaml:"db_password"`
-	DbName         string `yaml:"db_name"`
-	DbPreFix       string `yaml:"db_prefix"`
-	ServiceAddress string `yaml:"service_address"`
-	LocalLog       string `yaml:"local_log"`
+	DbUser         string        `yaml:"db_user"`
+	DbPassword     string        `yaml:"db_password"`
+	DbName         string        `yaml:"db_name"`
+	DbPreFix       string        `yaml:"db_prefix"`
+	RedisHost      string        `yaml:"redis_host"`     // redis地址
+	RedisPassword  string        `yaml:"redis_password"` // redis密码
+	RedisTimeout   time.Duration `yaml:"redis_timeout"`  // redis超时时间
+	RedisDatabase  int           `yaml:"redis_database"` // redis库
+	ServiceAddress string        `yaml:"service_address"`
+	LocalLog       string        `yaml:"local_log"`
 }
 
 var AppConfig *Configuration
