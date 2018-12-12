@@ -6,26 +6,21 @@ import (
 	"log"
 )
 
-type File struct {
+type Message struct {
 	Id         int    `xorm:"int(11) NOT NULL autoincr" json:"id"`
-	Name       string `xorm:"varchar(32) NOT NULL" json:"name"`
-	PoolId     int    `xorm:"int(11) NOT NULL" json:"pool_id"`
-	Content    string `xorm:"text NOT NULL" json:"content"`
-	CreateId   int    `xorm:"int(11) NOT NULL" json:"create_id"`
-	EditId     int    `xorm:"int(11) NOT NULL" json:"edit_id"`
+	UserId     int    `xorm:"int(11) NOT NULL" json:"user_id"`
+	SenderId   int    `xorm:"int(11) NOT NULL" json:"sender_id"`
+	MType      string `xorm:"enum('NORMAL','INVITE') NOT NULL DEFAULT 'NORMAL'" json:"m_type"`
+	Content    string `xorm:"varchar(100) DEFAULT NULL" json:"content"`
 	CreateTime string `xorm:"datetime NOT NULL DEFAULT '2001-01-01 00:00:00'" json:"create_time"`
-	EditTime   string `xorm:"datetime DEFAULT NULL" json:"edit_time"`
-	DeleteTime string `xorm:"datetime DEFAULT NULL" json:"delete_time"`
-	Collect    string `xorm:"enum('Y','N') NOT NULL DEFAULT 'N'" json:"collect"`
-	Open       string `xorm:"enum('Y','N') NOT NULL DEFAULT 'N'" json:"open"`
 }
 
-var DefaultFile = &File{}
+var DefaultMessage = &Message{}
 
 /**
  * 执行原生sql查询，返回string类型的map
  */
-func (m *File) Query(args ...interface{}) ([]map[string]string, error) {
+func (m *Message) Query(args ...interface{}) ([]map[string]string, error) {
 	// 基础sql语句
 	sql := ""
 	switch val := args[0].(type) {
@@ -65,7 +60,7 @@ func (m *File) Query(args ...interface{}) ([]map[string]string, error) {
 /**
  * 执行原生sql，返回定义的结构体类型
  */
-func (m *File) QueryStructure(args ...interface{}) ([]File, error) {
+func (m *Message) QueryStructure(args ...interface{}) ([]Message, error) {
 	// 基础sql语句
 	sql := ""
 	switch val := args[0].(type) {
@@ -95,7 +90,7 @@ func (m *File) QueryStructure(args ...interface{}) ([]File, error) {
 		}
 	}
 
-	result := []File{}
+	result := []Message{}
 	err := DbInit().SQL(sql, params...).Find(&result)
 	if err != nil {
 		log.Print(err.Error())
@@ -106,8 +101,8 @@ func (m *File) QueryStructure(args ...interface{}) ([]File, error) {
 /**
  * 通过参数构造sql查询，返回string类型的map
  */
-func (m *File) QueryByMap(args ...interface{}) ([]map[string]string, error) {
-	sql := "select * from f_file where 1=1 "
+func (m *Message) QueryByMap(args ...interface{}) ([]map[string]string, error) {
+	sql := "select * from f_pool_user where 1=1 "
 	// 拼接where语句
 	var params []interface{}
 	switch val := args[0].(type) {
@@ -119,7 +114,7 @@ func (m *File) QueryByMap(args ...interface{}) ([]map[string]string, error) {
 					continue
 				}
 			}
-			sql += fmt.Sprintf("and f_file.%s = ? ", k)
+			sql += fmt.Sprintf("and f_pool_user.%s = ? ", k)
 			params = append(params, v)
 		}
 	}
@@ -151,10 +146,10 @@ func (m *File) QueryByMap(args ...interface{}) ([]map[string]string, error) {
 /**
  * 通过参数构造sql查询，返回定义的结构体类型
  */
-func (m *File) QueryStructureByMap(args ...interface{}) ([]File, error) {
-	result := []File{}
+func (m *Message) QueryStructureByMap(args ...interface{}) ([]Message, error) {
+	result := []Message{}
 
-	sql := "select * from f_file where 1=1 "
+	sql := "select * from f_pool_user where 1=1 "
 	// 拼接where语句
 	var params []interface{}
 	switch val := args[0].(type) {
@@ -166,7 +161,7 @@ func (m *File) QueryStructureByMap(args ...interface{}) ([]File, error) {
 					continue
 				}
 			}
-			sql += fmt.Sprintf("and f_file.%s = ? ", k)
+			sql += fmt.Sprintf("and f_pool_user.%s = ? ", k)
 			params = append(params, v)
 		}
 	}
@@ -198,7 +193,7 @@ func (m *File) QueryStructureByMap(args ...interface{}) ([]File, error) {
 /**
  * 获取count
  */
-func (m *File) Count() (int64, error) {
+func (m *Message) Count() (int64, error) {
 	ret, err := DbInit().Count(m)
 	if err != nil {
 		log.Println(err)
@@ -210,11 +205,11 @@ func (m *File) Count() (int64, error) {
 /**
  * 删除，通过参数构造sql
  */
-func (m *File) Delete(args Arr) error {
-	sql := "delete from f_file where 1=1 "
+func (m *Message) Delete(args Arr) error {
+	sql := "delete from f_pool_user where 1=1 "
 	var params []interface{}
 	for k, v := range args {
-		sql += fmt.Sprintf("and f_file.%s = ? ", k)
+		sql += fmt.Sprintf("and f_pool_user.%s = ? ", k)
 		params = append(params, v)
 	}
 	_, err := DbInit().SQL(sql, params...).QueryString()
@@ -228,7 +223,7 @@ func (m *File) Delete(args Arr) error {
 /**
  * 删除，绑定结构体
  */
-func (m *File) DeleteByStructure(id int) error {
+func (m *Message) DeleteByStructure(id int) error {
 	_, err := DbInit().Id(id).Delete(m)
 	if err != nil {
 		log.Println(err.Error())
@@ -240,18 +235,18 @@ func (m *File) DeleteByStructure(id int) error {
 /**
  * 更新，通过参数构造sql
  */
-func (m *File) Update(set, args Arr) error {
-	sql := "update f_file set "
+func (m *Message) Update(set, args Arr) error {
+	sql := "update f_pool_user set "
 	var params []interface{}
 	for k, v := range set {
-		sql += fmt.Sprintf("f_file.%s = ?,", k)
+		sql += fmt.Sprintf("f_pool_user.%s = ?,", k)
 		params = append(params, v)
 	}
 
 	sql = sql[:len(sql)-1]
 	sql += " where 1=1 "
 	for k, v := range args {
-		sql += fmt.Sprintf("and f_file.%s = ? ", k)
+		sql += fmt.Sprintf("and f_pool_user.%s = ? ", k)
 		params = append(params, v)
 	}
 
@@ -266,7 +261,7 @@ func (m *File) Update(set, args Arr) error {
 /**
  * 更新，绑定结构体
  */
-func (m *File) UpdateByStructure(args *File) error {
+func (m *Message) UpdateByStructure(args *Message) error {
 	_, err := DbInit().Update(m, args)
 	if err != nil {
 		log.Println(err.Error())
@@ -278,7 +273,7 @@ func (m *File) UpdateByStructure(args *File) error {
 /**
  * 新增，绑定结构体
  */
-func (m *File) InsertByStructure() error {
+func (m *Message) InsertByStructure() error {
 	_, err := DbInit().Insert(m)
 	if err != nil {
 		log.Println(err.Error())

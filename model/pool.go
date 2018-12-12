@@ -10,8 +10,11 @@ type Pool struct {
 	Id         int    `xorm:"int(11) NOT NULL autoincr" json:"id"`
 	Name       string `xorm:"varchar(32) NOT NULL" json:"name"`
 	ManagerId  int    `xorm:"int(11) NOT NULL" json:"manager_id"`
+	Desc       string `xorm:"varchar(50) DEFAULT NULL" json:"desc"`
+	Icon       string `xorm:"varchar(255) DEFAULT NULL" json:"icon"`
 	CreateTime string `xorm:"datetime NOT NULL DEFAULT '2001-01-01 00:00:00'" json:"create_time"`
-	DeleteTime string `xorm:"datetime DEFAULT NULL" json:"dlete_time"`
+	DeleteTime string `xorm:"datetime DEFAULT NULL" json:"delete_time"`
+	Premit     string `xorm:"varchar(10) NOT NULL DEFAULT 11111" json:"premit"`
 }
 
 var DefaultPool = &Pool{}

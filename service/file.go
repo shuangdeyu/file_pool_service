@@ -11,7 +11,7 @@ type GetFileListByPoolIdArgs struct {
 
 func GetFileListByPoolId(params *GetFileListByPoolIdArgs) *Out {
 	if !(params.PoolId > 0) {
-		return NewOut(POOL_NOT_EXITS)
+		return NewOut(ERROR_POOL_NOT_EXITS)
 	}
 	list, _ := model.DefaultFile.QueryByMap(model.Arr{"pool_id": params.PoolId})
 	if len(list) > 0 {

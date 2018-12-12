@@ -78,7 +78,7 @@ type DeleteUserPoolByIdArgs struct {
 
 func DeleteUserPoolById(params *DeleteUserPoolByIdArgs) *Out {
 	if !(params.PoolUserId > 0) {
-		return NewOut(POOL_NOT_EXITS)
+		return NewOut(ERROR_POOL_NOT_EXITS)
 	}
 	now := timehelper.CurrentTime()
 	err := model.DefaultPoolUser.Update(model.Arr{"delete_time": now}, model.Arr{"id": params.PoolUserId})
@@ -97,7 +97,7 @@ type RestoreUserPoolByIdArgs struct {
 
 func RestoreUserPoolById(params *RestoreUserPoolByIdArgs) *Out {
 	if !(params.PoolUserId > 0) {
-		return NewOut(POOL_NOT_EXITS)
+		return NewOut(ERROR_POOL_NOT_EXITS)
 	}
 	err := model.DefaultPoolUser.Update(model.Arr{"delete_time": nil}, model.Arr{"id": params.PoolUserId})
 	if err != nil {
@@ -115,7 +115,7 @@ type GetPoolInfoByPoolUserIdArgs struct {
 
 func GetPoolInfoByPoolUserId(params *GetPoolInfoByPoolUserIdArgs) *Out {
 	if !(params.PoolUserId > 0) {
-		return NewOut(POOL_NOT_EXITS)
+		return NewOut(ERROR_POOL_NOT_EXITS)
 	}
 	list, _ := model.DefaultPoolUser.Query(`SELECT
 	pu.*,p.name,p.icon 

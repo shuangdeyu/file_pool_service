@@ -41,10 +41,34 @@ func main() {
 // 服务接口注册
 
 /**
+ * 登录
+ */
+func (d *FilePoolService) Login(ctx context.Context, args *service.LoginArgs, reply *ServiceReply) error {
+	reply.Out = service.Login(args)
+	return nil
+}
+
+/**
+ * 注册
+ */
+func (d *FilePoolService) Register(ctx context.Context, args *service.RegisterArgs, reply *ServiceReply) error {
+	reply.Out = service.Register(args)
+	return nil
+}
+
+/**
  * 获取用户信息
  */
 func (d *FilePoolService) GetUserInfo(ctx context.Context, args *service.GetUserInfoArgs, reply *ServiceReply) error {
 	reply.Out = service.GetUserInfo(args)
+	return nil
+}
+
+/**
+ * 根据用户名获取用户信息
+ */
+func (d *FilePoolService) GetUserInfoByName(ctx context.Context, args *service.GetUserInfoByNameArgs, reply *ServiceReply) error {
+	reply.Out = service.GetUserInfoByName(args)
 	return nil
 }
 

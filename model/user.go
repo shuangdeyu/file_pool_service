@@ -14,6 +14,7 @@ type User struct {
 	HeadPic    string `xorm:"varchar(255) DEFAULT NULL" json:"head_pic"`
 	Job        string `xorm:"varchar(32) DEFAULT NULL" json:"job"`
 	Desc       string `xorm:"text" json:"desc"`
+	Email      string `xorm:"varchar(50) DEFAULT NULL" json:"email"`
 	CreateTime string `xorm:"datetime NOT NULL DEFAULT '2001-01-01 00:00:00'" json:"create_time"`
 }
 
