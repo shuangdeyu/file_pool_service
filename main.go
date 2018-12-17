@@ -113,10 +113,26 @@ func (d *FilePoolService) GetPoolInfoByPoolUserId(ctx context.Context, args *ser
 }
 
 /**
- * 获取文档池下的文档列表
+ * 获取文档列表
  */
-func (d *FilePoolService) GetFileListByPoolId(ctx context.Context, args *service.GetFileListByPoolIdArgs, reply *ServiceReply) error {
-	reply.Out = service.GetFileListByPoolId(args)
+func (d *FilePoolService) GetFileList(ctx context.Context, args *service.GetFileListArgs, reply *ServiceReply) error {
+	reply.Out = service.GetFileList(args)
+	return nil
+}
+
+/**
+ * 获取文档点赞数
+ */
+func (d *FilePoolService) GetFilePraiseCount(ctx context.Context, args *service.GetFilePraiseCountArgs, reply *ServiceReply) error {
+	reply.Out = service.GetFilePraiseCount(args)
+	return nil
+}
+
+/**
+ * 获取文档收藏数
+ */
+func (d *FilePoolService) GetFileCollectCount(ctx context.Context, args *service.GetFilePraiseCountArgs, reply *ServiceReply) error {
+	reply.Out = service.GetFileCollectCount(args)
 	return nil
 }
 

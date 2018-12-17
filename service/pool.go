@@ -5,6 +5,13 @@ import (
 	"helper_go/timehelper"
 )
 
+const (
+	POOL_TYPE_ALL    = "ALL"
+	POOL_TYPE_MINE   = "MINE"
+	POOL_TYPE_JOIN   = "JOIN"
+	POOL_TYPE_DELETE = "DELETE"
+)
+
 /**
  * 获取用户文档池列表
  * @param UserId int 用户id
@@ -13,23 +20,58 @@ import (
  */
 type GetUserPoolListArgs struct {
 	UserId int
+	Search string
 	Offset int
 	Limit  int
+	Type   string
 }
 
 func GetUserPoolList(params *GetUserPoolListArgs) *Out {
 	if !(params.UserId > 0) {
 		return NewOut(ERROR_USER_NOT_EXITS)
 	}
-	list, _ := model.DefaultPoolUser.Query(`SELECT
-	pu.*,p.name,p.icon,p.manager_id,u.name manager,u.head_pic 
-FROM
+
+	if params.Offset <= 0 {
+		params.Offset = 0
+	}
+	if params.Limit <= 0 {
+		params.Limit = 12
+	}
+
+	where := "pu.user_id = ? "
+	param := []interface{}{params.UserId}
+	if params.Search != "" {
+		where += " and p.name like '%" + params.Search + "%'"
+	}
+	switch params.Type {
+	case POOL_TYPE_MINE: // 我创建的
+		where += " and pu.is_manager = 'Y' and pu.delete_time is null"
+	case POOL_TYPE_JOIN: // 我参与的
+		where += " and pu.is_manager = 'N' and pu.delete_time is null"
+	case POOL_TYPE_DELETE: // 回收站
+		where += " and pu.is_manager = 'Y' and pu.delete_time is not null"
+	default:
+		where += " and pu.delete_time is null"
+	}
+	param = append(param, params.Offset, params.Limit)
+
+	list, _ := model.DefaultPoolUser.Query(`select
+	pu.*,p.name,p.icon,p.manager_id 
+from
 	f_pool_user pu
-	INNER JOIN f_pool p ON pu.pool_id = p.id
-	LEFT JOIN f_user u ON p.manager_id = u.id 
-WHERE
-	pu.user_id = ? 
-	AND pu.delete_time IS NULL`, []interface{}{params.UserId})
+	join f_pool p on pu.pool_id = p.id 
+where `+where+" order by pu.create_time desc limit ?,?", param)
+	retCount, _ := model.DefaultPoolUser.Query(`select
+	count(pu.id) total_count 
+from
+	f_pool_user pu 
+	join f_pool p on pu.pool_id = p.id 
+where `+where, []interface{}{params.UserId})
+	count := "0"
+	if len(retCount) > 0 {
+		count = retCount[0]["total_count"]
+	}
+
 	if len(list) > 0 {
 		return NewOut(list)
 	} else {
