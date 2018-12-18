@@ -275,8 +275,8 @@ func (m *FileHistory) UpdateByStructure(args *FileHistory) error {
 /**
  * 新增，绑定结构体
  */
-func (m *FileHistory) InsertByStructure() error {
-	_, err := DbInit().Insert(m)
+func (m *FileHistory) InsertByStructure(args ...string) error {
+	_, err := DbInit().Omit(args...).Insert(m)
 	if err != nil {
 		log.Println(err.Error())
 		return err

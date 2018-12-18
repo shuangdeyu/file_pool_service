@@ -81,14 +81,6 @@ func (d *FilePoolService) GetUserPoolList(ctx context.Context, args *service.Get
 }
 
 /**
- * 获取用户回收站文档池列表(只显示自己创建的池)
- */
-func (d *FilePoolService) GetUserRecyclePoolList(ctx context.Context, args *service.GetUserRecyclePoolListArgs, reply *ServiceReply) error {
-	reply.Out = service.GetUserRecyclePoolList(args)
-	return nil
-}
-
-/**
  * 删除文档池
  */
 func (d *FilePoolService) DeleteUserPoolById(ctx context.Context, args *service.DeleteUserPoolByIdArgs, reply *ServiceReply) error {
@@ -107,8 +99,24 @@ func (d *FilePoolService) RestoreUserPoolById(ctx context.Context, args *service
 /**
  * 根据用户文档池id获取文档池信息
  */
-func (d *FilePoolService) GetPoolInfoByPoolUserId(ctx context.Context, args *service.GetPoolInfoByPoolUserIdArgs, reply *ServiceReply) error {
-	reply.Out = service.GetPoolInfoByPoolUserId(args)
+func (d *FilePoolService) GetPoolInfoById(ctx context.Context, args *service.GetPoolInfoByIdArgs, reply *ServiceReply) error {
+	reply.Out = service.GetPoolInfoById(args)
+	return nil
+}
+
+/**
+ * 新建池
+ */
+func (d *FilePoolService) CreateNewPool(ctx context.Context, args *service.CreateNewPoolArgs, reply *ServiceReply) error {
+	reply.Out = service.CreateNewPool(args)
+	return nil
+}
+
+/**
+ * 编辑池信息
+ */
+func (d *FilePoolService) EditPoolInfo(ctx context.Context, args *service.EditPoolInfoArgs, reply *ServiceReply) error {
+	reply.Out = service.EditPoolInfo(args)
 	return nil
 }
 

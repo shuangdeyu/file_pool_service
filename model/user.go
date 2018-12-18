@@ -276,8 +276,8 @@ func (m *User) UpdateByStructure(args *User) error {
 /**
  * 新增，绑定结构体
  */
-func (m *User) InsertByStructure() error {
-	_, err := DbInit().Insert(m)
+func (m *User) InsertByStructure(args ...string) error {
+	_, err := DbInit().Omit(args...).Insert(m)
 	if err != nil {
 		log.Println(err.Error())
 		return err

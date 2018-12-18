@@ -273,8 +273,8 @@ func (m *PoolUser) UpdateByStructure(args *PoolUser) error {
 /**
  * 新增，绑定结构体
  */
-func (m *PoolUser) InsertByStructure() error {
-	_, err := DbInit().Insert(m)
+func (m *PoolUser) InsertByStructure(args ...string) error {
+	_, err := DbInit().Omit(args...).Insert(m)
 	if err != nil {
 		log.Println(err.Error())
 		return err

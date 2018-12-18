@@ -272,8 +272,8 @@ func (m *FileCollect) UpdateByStructure(args *FileCollect) error {
 /**
  * 新增，绑定结构体
  */
-func (m *FileCollect) InsertByStructure() error {
-	_, err := DbInit().Insert(m)
+func (m *FileCollect) InsertByStructure(args ...string) error {
+	_, err := DbInit().Omit(args...).Insert(m)
 	if err != nil {
 		log.Println(err.Error())
 		return err

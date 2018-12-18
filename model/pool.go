@@ -13,8 +13,7 @@ type Pool struct {
 	Desc       string `xorm:"varchar(50) DEFAULT NULL" json:"desc"`
 	Icon       string `xorm:"varchar(255) DEFAULT NULL" json:"icon"`
 	CreateTime string `xorm:"datetime NOT NULL DEFAULT '2001-01-01 00:00:00'" json:"create_time"`
-	DeleteTime string `xorm:"datetime DEFAULT NULL" json:"delete_time"`
-	Premit     string `xorm:"varchar(10) NOT NULL DEFAULT 11111" json:"premit"`
+	Permit     string `xorm:"varchar(10) NOT NULL DEFAULT 11111" json:"permit"`
 }
 
 var DefaultPool = &Pool{}
@@ -275,8 +274,8 @@ func (m *Pool) UpdateByStructure(args *Pool) error {
 /**
  * 新增，绑定结构体
  */
-func (m *Pool) InsertByStructure() error {
-	_, err := DbInit().Insert(m)
+func (m *Pool) InsertByStructure(args ...string) error {
+	_, err := DbInit().Omit(args...).Insert(m)
 	if err != nil {
 		log.Println(err.Error())
 		return err

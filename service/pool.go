@@ -73,41 +73,15 @@ where `+where, []interface{}{params.UserId})
 	}
 
 	if len(list) > 0 {
-		return NewOut(list)
+		return NewOut(map[string]interface{}{
+			"count": count,
+			"list":  list,
+		})
 	} else {
-		return NewOut([]map[string]string{})
-	}
-}
-
-/**
- * 获取用户回收站文档池列表
- * @param UserId int 用户id
- * @param Offset int 偏移量
- * @param Limit int 请求数
- */
-type GetUserRecyclePoolListArgs struct {
-	UserId int
-	Offset int
-	Limit  int
-}
-
-func GetUserRecyclePoolList(params *GetUserRecyclePoolListArgs) *Out {
-	if !(params.UserId > 0) {
-		return NewOut(ERROR_USER_NOT_EXITS)
-	}
-	list, _ := model.DefaultPoolUser.Query(`SELECT
-	pu.*,p.name,p.icon
-FROM
-	f_pool_user pu
-	INNER JOIN f_pool p ON pu.pool_id = p.id 
-WHERE
-	pu.user_id = ? 
-	AND pu.is_manager = 'Y' 
-	AND pu.delete_time IS NOT NULL`, []interface{}{params.UserId})
-	if len(list) > 0 {
-		return NewOut(list)
-	} else {
-		return NewOut([]map[string]string{})
+		return NewOut(map[string]interface{}{
+			"count": "0",
+			"list":  []map[string]string{},
+		})
 	}
 }
 
@@ -127,7 +101,7 @@ func DeleteUserPoolById(params *DeleteUserPoolByIdArgs) *Out {
 	if err != nil {
 		return NewOut(err)
 	}
-	return NewOut("")
+	return NewOut(SUCCESS)
 }
 
 /**
@@ -145,22 +119,22 @@ func RestoreUserPoolById(params *RestoreUserPoolByIdArgs) *Out {
 	if err != nil {
 		return NewOut(err)
 	}
-	return NewOut("")
+	return NewOut(SUCCESS)
 }
 
 /**
  * 根据用户文档池id获取文档池信息
  */
-type GetPoolInfoByPoolUserIdArgs struct {
+type GetPoolInfoByIdArgs struct {
 	PoolUserId int
 }
 
-func GetPoolInfoByPoolUserId(params *GetPoolInfoByPoolUserIdArgs) *Out {
+func GetPoolInfoById(params *GetPoolInfoByIdArgs) *Out {
 	if !(params.PoolUserId > 0) {
 		return NewOut(ERROR_POOL_NOT_EXITS)
 	}
 	list, _ := model.DefaultPoolUser.Query(`SELECT
-	pu.*,p.name,p.icon 
+	pu.*,p.name,p.icon,p.desc,p.permit 
 FROM
 	f_pool_user pu
 	INNER JOIN f_pool p ON pu.pool_id = p.id 
@@ -170,6 +144,66 @@ LIMIT 1`, []interface{}{params.PoolUserId})
 	if len(list) > 0 {
 		return NewOut(list[0])
 	} else {
-		return NewOut([]map[string]string{})
+		return NewOut(ERROR_POOL_NOT_EXITS)
+	}
+}
+
+/**
+ * 新建池
+ */
+type CreateNewPoolArgs struct {
+	Name   string // 池名称
+	Desc   string // 描述
+	Icon   string // icon 地址
+	Permit string // 权限值
+	UserId int    // 用户id
+}
+
+func CreateNewPool(params *CreateNewPoolArgs) *Out {
+	now := timehelper.CurrentTime()
+
+	// 新增池信息
+	insert_p := &model.Pool{
+		Name:       params.Name,
+		ManagerId:  params.UserId,
+		Desc:       params.Desc,
+		Icon:       params.Icon,
+		CreateTime: now,
+		Permit:     params.Permit,
+	}
+	err := insert_p.InsertByStructure()
+	if err != nil {
+		return NewOut(ERROR_INSERT_FAILED)
+	}
+	pool_id := insert_p.Id
+	if !(pool_id > 0) {
+		return NewOut(ERROR_INSERT_FAILED)
+	}
+	// 新增用户池信息
+	insert_pu := &model.PoolUser{
+		UserId:     params.UserId,
+		PoolId:     pool_id,
+		IsManager:  "Y",
+		CreateTime: now,
+	}
+	err = insert_pu.InsertByStructure("delete_time")
+	if err != nil {
+		return NewOut(ERROR_INSERT_FAILED)
+	}
+
+	return NewOut(SUCCESS)
+}
+
+/**
+ * 修改池信息
+ */
+type EditPoolInfoArgs struct {
+	Id     int
+	Permit string
+}
+
+func EditPoolInfo(params *EditPoolInfoArgs) *Out {
+	if !(params.Id > 0) {
+		return NewOut(ERROR_POOL_NOT_EXITS)
 	}
 }
