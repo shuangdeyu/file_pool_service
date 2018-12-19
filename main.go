@@ -97,6 +97,14 @@ func (d *FilePoolService) RestoreUserPoolById(ctx context.Context, args *service
 }
 
 /**
+ * 获取文档池信息
+ */
+func (d *FilePoolService) GetPoolInfo(ctx context.Context, args *service.GetPoolInfoArgs, reply *ServiceReply) error {
+	reply.Out = service.GetPoolInfo(args)
+	return nil
+}
+
+/**
  * 根据用户文档池id获取文档池信息
  */
 func (d *FilePoolService) GetPoolInfoById(ctx context.Context, args *service.GetPoolInfoByIdArgs, reply *ServiceReply) error {
@@ -117,6 +125,30 @@ func (d *FilePoolService) CreateNewPool(ctx context.Context, args *service.Creat
  */
 func (d *FilePoolService) EditPoolInfo(ctx context.Context, args *service.EditPoolInfoArgs, reply *ServiceReply) error {
 	reply.Out = service.EditPoolInfo(args)
+	return nil
+}
+
+/**
+ * 获取池成员列表
+ */
+func (d *FilePoolService) GetPoolMembers(ctx context.Context, args *service.GetPoolMembersArgs, reply *ServiceReply) error {
+	reply.Out = service.GetPoolMembers(args)
+	return nil
+}
+
+/**
+ * 添加池成员列表
+ */
+func (d *FilePoolService) AddPoolMembers(ctx context.Context, args *service.AddPoolMembersArgs, reply *ServiceReply) error {
+	reply.Out = service.AddPoolMembers(args)
+	return nil
+}
+
+/**
+ * 删除池成员
+ */
+func (d *FilePoolService) DeletePoolMembers(ctx context.Context, args *service.DeletePoolMembersArgs, reply *ServiceReply) error {
+	reply.Out = service.DeletePoolMembers(args)
 	return nil
 }
 

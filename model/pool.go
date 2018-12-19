@@ -13,6 +13,7 @@ type Pool struct {
 	Desc       string `xorm:"varchar(50) DEFAULT NULL" json:"desc"`
 	Icon       string `xorm:"varchar(255) DEFAULT NULL" json:"icon"`
 	CreateTime string `xorm:"datetime NOT NULL DEFAULT '2001-01-01 00:00:00'" json:"create_time"`
+	DeleteTime string `xorm:"datetime DEFAULT NULL" json:"delete_time"`
 	Permit     string `xorm:"varchar(10) NOT NULL DEFAULT 11111" json:"permit"`
 }
 

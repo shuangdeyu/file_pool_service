@@ -45,13 +45,13 @@ func GetUserPoolList(params *GetUserPoolListArgs) *Out {
 	}
 	switch params.Type {
 	case POOL_TYPE_MINE: // 我创建的
-		where += " and pu.is_manager = 'Y' and pu.delete_time is null"
+		where += " and pu.is_manager = 'Y' and pu.delete_time is null and p.delete_time is null"
 	case POOL_TYPE_JOIN: // 我参与的
-		where += " and pu.is_manager = 'N' and pu.delete_time is null"
+		where += " and pu.is_manager = 'N' and pu.delete_time is null and p.delete_time is null"
 	case POOL_TYPE_DELETE: // 回收站
 		where += " and pu.is_manager = 'Y' and pu.delete_time is not null"
 	default:
-		where += " and pu.delete_time is null"
+		where += " and pu.delete_time is null and p.delete_time is null"
 	}
 	param = append(param, params.Offset, params.Limit)
 
@@ -90,6 +90,8 @@ where `+where, []interface{}{params.UserId})
  */
 type DeleteUserPoolByIdArgs struct {
 	PoolUserId int
+	PoolId     int
+	Manager    bool
 }
 
 func DeleteUserPoolById(params *DeleteUserPoolByIdArgs) *Out {
@@ -97,7 +99,12 @@ func DeleteUserPoolById(params *DeleteUserPoolByIdArgs) *Out {
 		return NewOut(ERROR_POOL_NOT_EXITS)
 	}
 	now := timehelper.CurrentTime()
+	// 删除文档池用户
 	err := model.DefaultPoolUser.Update(model.Arr{"delete_time": now}, model.Arr{"id": params.PoolUserId})
+	if params.Manager {
+		// 删除文档池
+		err = model.DefaultPool.Update(model.Arr{"delete_time": now}, model.Arr{"id": params.PoolId})
+	}
 	if err != nil {
 		return NewOut(err)
 	}
@@ -120,6 +127,26 @@ func RestoreUserPoolById(params *RestoreUserPoolByIdArgs) *Out {
 		return NewOut(err)
 	}
 	return NewOut(SUCCESS)
+}
+
+/**
+ * 获取池信息
+ */
+type GetPoolInfoArgs struct {
+	PoolId int
+}
+
+func GetPoolInfo(params *GetPoolInfoArgs) *Out {
+	if !(params.PoolId > 0) {
+		return NewOut(ERROR_POOL_NOT_EXITS)
+	}
+
+	list, _ := model.DefaultPool.QueryByMap(model.Arr{"id": params.PoolId})
+	if len(list) > 0 {
+		return NewOut(list[0])
+	} else {
+		return NewOut(ERROR_POOL_NOT_EXITS)
+	}
 }
 
 /**
@@ -171,7 +198,7 @@ func CreateNewPool(params *CreateNewPoolArgs) *Out {
 		CreateTime: now,
 		Permit:     params.Permit,
 	}
-	err := insert_p.InsertByStructure()
+	err := insert_p.InsertByStructure("delete_time")
 	if err != nil {
 		return NewOut(ERROR_INSERT_FAILED)
 	}
@@ -206,4 +233,85 @@ func EditPoolInfo(params *EditPoolInfoArgs) *Out {
 	if !(params.Id > 0) {
 		return NewOut(ERROR_POOL_NOT_EXITS)
 	}
+	err := model.DefaultPool.Update(model.Arr{"permit": params.Permit}, model.Arr{"id": params.Id})
+	if err != nil {
+		return NewOut(err)
+	}
+	return NewOut(SUCCESS)
+}
+
+/**
+ * 获取池成员列表
+ */
+type GetPoolMembersArgs struct {
+	PoolId int
+}
+
+func GetPoolMembers(params *GetPoolMembersArgs) *Out {
+	if !(params.PoolId > 0) {
+		return NewOut(ERROR_POOL_NOT_EXITS)
+	}
+	list, _ := model.DefaultPoolUser.Query(`select 
+	pu.*,u.name user_name,u.head_pic 
+from 
+	f_pool_user pu 
+	join f_user u on pu.user_id = u.id 
+where 
+	pu.pool_id = ? 
+	and pu.delete_time is null`, []interface{}{params.PoolId})
+	if len(list) > 0 {
+		return NewOut(list)
+	} else {
+		return NewOut([]map[string]interface{}{})
+	}
+}
+
+/**
+ * 添加池成员
+ */
+type AddPoolMembersArgs struct {
+	UserId    int
+	PoolId    int
+	IsManager string
+}
+
+func AddPoolMembers(params *AddPoolMembersArgs) *Out {
+	if params.UserId < 1 || params.PoolId < 1 {
+		return NewOut(ERROR_INVILD_PARAMS)
+	}
+	if params.IsManager != "Y" && params.IsManager != "N" {
+		params.IsManager = "N"
+	}
+	now := timehelper.CurrentTime()
+	insert := &model.PoolUser{
+		UserId:     params.UserId,
+		PoolId:     params.PoolId,
+		IsManager:  params.IsManager,
+		CreateTime: now,
+	}
+	err := insert.InsertByStructure("delete_time")
+	if err != nil {
+		return NewOut(err)
+	}
+	return NewOut(insert.Id)
+}
+
+/**
+ * 删除池成员
+ */
+type DeletePoolMembersArgs struct {
+	PoolId int
+	UserId int
+}
+
+func DeletePoolMembers(params *DeletePoolMembersArgs) *Out {
+	if params.UserId < 1 || params.PoolId < 1 {
+		return NewOut(ERROR_INVILD_PARAMS)
+	}
+	now := timehelper.CurrentTime()
+	err := model.DefaultPoolUser.Update(model.Arr{"delete_time": now}, model.Arr{"user_id": params.UserId, "pool_id": params.PoolId})
+	if err != nil {
+		return NewOut(err)
+	}
+	return NewOut(SUCCESS)
 }

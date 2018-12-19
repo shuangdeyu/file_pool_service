@@ -4,6 +4,7 @@ const (
 	SUCCESS = 100000
 
 	ERROR_INSERT_FAILED = 100001 // 新增失败
+	ERROR_INVILD_PARAMS = 100002 // 参数错误
 
 	ERROR_USER_NOT_EXITS          = 100101 // 用户不存在
 	ERROR_USER_NAME_PASSWORD      = 100102 // 用户名或密码不正确
@@ -32,6 +33,8 @@ func ToString(errorCode interface{}) string {
 	case int:
 		if code == ERROR_INSERT_FAILED {
 			return "新增失败"
+		} else if code == ERROR_INVILD_PARAMS {
+			return "参数不合法"
 		} else if code == ERROR_USER_NOT_EXITS {
 			return "用户不存在"
 		} else if code == ERROR_USER_NAME_PASSWORD {
